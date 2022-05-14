@@ -1,10 +1,14 @@
-﻿namespace MainFrame
+﻿
+namespace DispatcherMainFrame.Networking
 {
 	public class Program 
 	{
 		public static void Main() 
 		{
-			Console.WriteLine("Test");
+			//DispatcherSocket s = new DispatcherSocket();
+			//s.StartServer();
+			//Console.WriteLine("Test");
+			//Console.ReadLine();
 		}
 	}
 }

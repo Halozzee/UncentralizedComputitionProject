@@ -7,4 +7,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SharedServer\SharedServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Plugins\" />
+  </ItemGroup>
+
 </Project>
