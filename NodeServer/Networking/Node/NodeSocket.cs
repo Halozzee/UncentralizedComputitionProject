@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NodeServer;
+using NodeServer.Networking;
 using SharedServer.Networking;
 using System.Net;
 using System.Net.Sockets;
@@ -10,7 +11,7 @@ namespace NodeMainFrame.Networking
 	public class NodeSocket 
 	{
         private Socket socket;
-        public byte[] buffer = new byte[ServerConfiguration.BufferSize];
+        private BufferPool bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
         public delegate void MessageRecievedHandler(object sender, TransferMessage? message);
         public event MessageRecievedHandler OnMessageRecieved;
@@ -36,20 +37,24 @@ namespace NodeMainFrame.Networking
                 return;
             }
 
-            var message = buffer.GetTransferMessage();
+            var message = bufferAccessor.GetBuffer().GetTransferMessage();
 
             OnMessageRecieved?.Invoke(this, message);
 
-            buffer = new byte[buffer.Length];
+            bufferAccessor.MoveToNext();
+            bufferAccessor.CleanBuffer();
+
+            var nextBuffer = bufferAccessor.GetBuffer();
+
             // Start receiving data again.
-            socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, null);
+            socket.BeginReceive(nextBuffer, 0, nextBuffer.Length, SocketFlags.None, ReceiveCallback, null);
         }
 
         private void ConnectCallback(IAsyncResult AR)
         {
             socket.EndConnect(AR);
-            buffer = new byte[socket.ReceiveBufferSize];
-            socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, null);
+            bufferAccessor.GetBuffer();
+            socket.BeginReceive(bufferAccessor.GetBuffer(), 0, bufferAccessor.GetBuffer().Length, SocketFlags.None, ReceiveCallback, null);
 
             Send(new TransferMessage { Data = Encoding.ASCII.GetBytes("hello!")});
         }

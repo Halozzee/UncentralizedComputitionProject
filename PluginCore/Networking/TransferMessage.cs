@@ -8,9 +8,13 @@ using System.Threading.Tasks;
 
 namespace SharedServer.Networking
 {
+	// TODO: ПЕРЕМЕСТИТЬ К СЕРВЕРУ
 	public class TransferMessage
 	{
+		public Guid CommunicationId { get; set; }
+		public Guid PluginId { get; set; }
 		public byte[] Data { get; set; }
+		public bool ContainsResult { get; set; }
 	}
 
 	public static class TransferMessageExtensions

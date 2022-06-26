@@ -9,5 +9,6 @@ namespace NodeServer
 	internal static class ServerConfiguration
 	{
 		public const int BufferSize = 262224;
+		public const int BufferAccessorSize = 4;
 	}
 }

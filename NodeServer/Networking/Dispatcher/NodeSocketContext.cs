@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
 using NodeServer;
+using NodeServer.Networking;
 
 namespace MainFrame.Networking.Dispatcher
 {
@@ -10,7 +11,7 @@ namespace MainFrame.Networking.Dispatcher
     {
         public Guid NodeId { get; set; } = Guid.NewGuid();
         public Socket NodeSocket;
-        public byte[] Buffer;
+        internal BufferPool bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
         public delegate void MessageRecievedHandler(object sender, TransferMessage? message);
         public event MessageRecievedHandler OnMessageRecieved;
@@ -25,7 +26,7 @@ namespace MainFrame.Networking.Dispatcher
             Console.WriteLine($"{NodeId} : {message.GetJSONString()}");
         }
 
-		public void SendCallback(IAsyncResult AR)
+        private void SendCallback(IAsyncResult AR)
         {
             NodeSocket.EndSend(AR);
         }
@@ -41,13 +42,17 @@ namespace MainFrame.Networking.Dispatcher
                     return;
                 }
 
-                var message = Buffer.GetTransferMessage();
+                var message = bufferAccessor.GetBuffer().GetTransferMessage();
 
                 OnMessageRecieved?.Invoke(this, message);
-                 
-                Buffer = new byte[Buffer.Length];
+
+                bufferAccessor.MoveToNext();
+                bufferAccessor.CleanBuffer();
+
+                var nextBuffer = bufferAccessor.GetBuffer();
+
                 // Start receiving data again.
-                NodeSocket.BeginReceive(Buffer, 0, Buffer.Length, SocketFlags.None, ReceiveCallback, null);
+                NodeSocket.BeginReceive(nextBuffer, 0, nextBuffer.Length, SocketFlags.None, ReceiveCallback, null);
                 Send(new TransferMessage { Data = Encoding.ASCII.GetBytes($"{NodeId} : Acknowledge") });
             }
 			catch (Exception ex)

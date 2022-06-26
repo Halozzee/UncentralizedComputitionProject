@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PluginCore.PluginCore;
+using SharedServer.Networking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +12,9 @@ namespace PluginCore
     {
         Guid PluginID { get; }
         PluginState State { get; }
-        PluginResult Run();
-        PluginResult Initialize();
         PluginResult OnRegistration();
-        PluginResult OnShutdown();
+        PluginResult Initialize(PluginInput pluginInput);
+        PluginResult Run(PluginInput pluginInput);
+        PluginResult OnShutdown(PluginInput pluginInput);
     }
 }

@@ -14,7 +14,7 @@ namespace MainFrame.Networking.Dispatcher
 	public class DispatcherSocket
     {
         private Socket serverSocket;
-        private List<NodeSocketContext> ss = new List<NodeSocketContext>(); // We will only accept one socket.
+        private List<NodeSocketContext> nodeSocketContexts = new List<NodeSocketContext>(); // We will only accept one socket.
         int cntr = 0;
 
         public void StartServer(IPAddress ipAddress, int port)
@@ -34,18 +34,27 @@ namespace MainFrame.Networking.Dispatcher
             clientSocket.SendBufferSize = ServerConfiguration.BufferSize;
 
             NodeSocketContext nodeSocketContext = new NodeSocketContext();
-            nodeSocketContext.Buffer = new byte[clientSocket.ReceiveBufferSize];
 
             nodeSocketContext.NodeSocket = clientSocket;
 
-            nodeSocketContext.NodeSocket.BeginReceive(nodeSocketContext.Buffer, 0, nodeSocketContext.Buffer.Length, 
+            nodeSocketContext.NodeSocket.BeginReceive(nodeSocketContext.bufferAccessor.GetBuffer(), 0, nodeSocketContext.bufferAccessor.GetBuffer().Length, 
                 SocketFlags.None, nodeSocketContext.ReceiveCallback, null);
 
-            ss.Add(nodeSocketContext);
+            nodeSocketContexts.Add(nodeSocketContext);
 
             nodeSocketContext.Send(new TransferMessage() { Data = Encoding.ASCII.GetBytes($"{cntr++}")});
 
             serverSocket.BeginAccept(AcceptCallback, null);
+        }
+
+        public void SendToNode(Guid nodeId, TransferMessage message) 
+        {
+            var nodeSocketContext = nodeSocketContexts.Find(x => x.NodeId == nodeId);
+            
+            if (nodeSocketContext != null)
+			{
+                nodeSocketContext.Send(message);
+            }
         }
     }
 }

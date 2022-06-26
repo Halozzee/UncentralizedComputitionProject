@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PluginCore.PluginCore;
+using SharedServer.Networking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -28,10 +30,24 @@ namespace PluginCore
             }
 
             if (instance.PluginID == Guid.Empty)
+            {
                 throw new ArgumentNullException("Plugin ID has to be provided!");
+            }
 
             plugins.Add(instance);
             return true;
         }
-    }
+
+		public PluginResult RunPlugin(Guid pluginId, TransferMessage message)
+		{
+            var pluginToRun = plugins.Find(x => x.PluginID == pluginId);
+            PluginInput pluginInput = PluginInput.ParseFromTransferMessage(message);
+
+            var initializeResult = pluginToRun.Initialize(pluginInput);
+            var runResult = pluginToRun.Run(pluginInput);
+            var shutdownResult = pluginToRun.OnShutdown(pluginInput);
+
+            return runResult;
+        }
+	}
 }

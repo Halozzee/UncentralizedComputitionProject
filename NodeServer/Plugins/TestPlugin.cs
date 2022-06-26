@@ -1,33 +1,37 @@
-﻿using PluginCore;
+﻿using NodeServer.Plugins;
+using PluginCore;
+using PluginCore.PluginCore;
+using SharedServer.Networking;
 
 namespace MainFrame.Node.Plugins
 {
+	// TODO: перекинуть в PluginCore
 	public class TestPlugin : IPlugin
 	{
 		public PluginState State => throw new NotImplementedException();
 
-		public Guid PluginID => throw new NotImplementedException();
+		public Guid PluginID => PluginScheme.PluginInfo[0];
 
-		public PluginResult Initialize()
+		public PluginResult Initialize(PluginInput pluginInput)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 
 		public PluginResult OnRegistration()
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 
-		public PluginResult OnShutdown()
+		public PluginResult OnShutdown(PluginInput pluginInput)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 
-		public PluginResult Run()
+		public PluginResult Run(PluginInput pluginInput)
 		{
 			int a = 0;
 			a++;
-			return new PluginResult { ExecutionResult = a};
+			return new PluginResult { ExecutionResult = a };
 		}
 	}
 }
