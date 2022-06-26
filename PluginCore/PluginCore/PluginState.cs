@@ -1,4 +1,4 @@
-﻿namespace SharedServer.PluginCore
+﻿namespace PluginCore
 {
 	public enum PluginState
     {

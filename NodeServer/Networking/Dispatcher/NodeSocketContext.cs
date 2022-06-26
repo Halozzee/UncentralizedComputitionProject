@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace DispatcherMainFrame.Networking
+namespace MainFrame.Networking.Dispatcher
 {
 	public class NodeSocketContext
     {

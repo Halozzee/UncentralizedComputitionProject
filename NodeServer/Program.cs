@@ -1,31 +1,8 @@
-﻿using NodeMainFrame.Networking;
-using SharedServer.PluginCore;
+﻿using MainFrame.Node.Plugins;
+using PluginCore;
 
-namespace NodeMainFrame
+namespace MainFrame.Node
 {
-	public class TestPlugin : IPlugin
-	{
-		public PluginState State => throw new NotImplementedException();
-
-		public Guid PluginID => throw new NotImplementedException();
-
-		public PluginResult Initialize()
-		{
-			throw new NotImplementedException();
-		}
-
-		public PluginResult OnRegistration()
-		{
-			throw new NotImplementedException();
-		}
-
-		public PluginResult Run()
-		{
-			int a = 0;
-			a++;
-			return new PluginResult { ExecutionResult = a};
-		}
-	}
 
 	public class Program
 	{
@@ -34,10 +11,19 @@ namespace NodeMainFrame
 			PluginManager p = new PluginManager();
 			p.RegisterPlugin(typeof(TestPlugin));
 
-            //NodeSocket t = new NodeSocket();
+			// --NODE--
+			//NodeSocket t = new NodeSocket();
 
-            //Console.WriteLine("Test");
-            //Console.ReadLine();
+			//Console.WriteLine("Test");
+			//Console.ReadLine();
+			// --NODE--
+
+			// --Dispatcher--
+			//DispatcherSocket s = new DispatcherSocket();
+			//s.StartServer();
+			//Console.WriteLine("Test");
+			//Console.ReadLine();
+			// --Dispatcher--
 		}
 	}
 }

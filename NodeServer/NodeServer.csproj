@@ -8,11 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SharedServer\SharedServer.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Plugins\" />
+    <ProjectReference Include="..\PluginCore\PluginCore.csproj" />
   </ItemGroup>
 
 </Project>

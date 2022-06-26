@@ -6,14 +6,9 @@ using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharedServer.PluginCore
+namespace PluginCore
 {
-    public interface IPluginManager
-    {
-        public bool RegisterPlugin(Type pluginType);
-    }
-
-    public class PluginManager : IPluginManager
+	public class PluginManager : IPluginManager
     {
         private List<IPlugin> plugins = new List<IPlugin>();
         public bool RegisterPlugin(Type pluginType) 
