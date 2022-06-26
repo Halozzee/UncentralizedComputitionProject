@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using Newtonsoft.Json;
+using NodeServer;
+using SharedServer.Networking;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -7,13 +10,20 @@ namespace NodeMainFrame.Networking
 	public class NodeSocket 
 	{
         private Socket socket;
-        private byte[] buffer;
+        public byte[] buffer = new byte[ServerConfiguration.BufferSize];
 
-		public NodeSocket(IPAddress ipAddress, int port)
+        public delegate void MessageRecievedHandler(object sender, TransferMessage? message);
+        public event MessageRecievedHandler OnMessageRecieved;
+
+        public NodeSocket(IPAddress ipAddress, int port)
 		{
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             // Connect to the specified host.
             var endPoint = new IPEndPoint(ipAddress, port);
+
+            socket.ReceiveBufferSize = ServerConfiguration.BufferSize;
+            socket.SendBufferSize = ServerConfiguration.BufferSize;
+
             socket.BeginConnect(endPoint, ConnectCallback, null);
         }
 
@@ -26,9 +36,11 @@ namespace NodeMainFrame.Networking
                 return;
             }
 
-            string message = Encoding.ASCII.GetString(buffer);
+            var message = buffer.GetTransferMessage();
 
-			Console.WriteLine(message);
+            OnMessageRecieved?.Invoke(this, message);
+
+            buffer = new byte[buffer.Length];
             // Start receiving data again.
             socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, null);
         }
@@ -39,9 +51,7 @@ namespace NodeMainFrame.Networking
             buffer = new byte[socket.ReceiveBufferSize];
             socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceiveCallback, null);
 
-            var sendData = Encoding.ASCII.GetBytes($"Hello");
-
-            socket.Send(sendData);
+            Send(new TransferMessage { Data = Encoding.ASCII.GetBytes("hello!")});
         }
 
         private void SendCallback(IAsyncResult AR)
@@ -49,14 +59,24 @@ namespace NodeMainFrame.Networking
             socket.EndSend(AR);
         }
 
-        private void Send(Socket handler, string data)
+        public void Send(string data)
         {
             // Convert the string data to byte data using ASCII encoding.  
             byte[] byteData = Encoding.ASCII.GetBytes(data);
+            Send(byteData);
+        }
 
+        public void Send(byte[] data)
+        {
             // Begin sending the data to the remote device.  
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
+            socket.BeginSend(data, 0, data.Length, 0,
+                new AsyncCallback(SendCallback), socket);
+        }
+
+        public void Send(TransferMessage transferMessage)
+        {
+            var message = JsonConvert.SerializeObject(transferMessage);
+            Send(message);
         }
     }
 }

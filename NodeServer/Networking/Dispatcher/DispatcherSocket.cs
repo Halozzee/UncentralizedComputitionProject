@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NodeServer;
+using SharedServer.Networking;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -28,19 +30,20 @@ namespace MainFrame.Networking.Dispatcher
         {
             Socket clientSocket = serverSocket.EndAccept(AR);
 
+            clientSocket.ReceiveBufferSize = ServerConfiguration.BufferSize;
+            clientSocket.SendBufferSize = ServerConfiguration.BufferSize;
+
             NodeSocketContext nodeSocketContext = new NodeSocketContext();
             nodeSocketContext.Buffer = new byte[clientSocket.ReceiveBufferSize];
 
             nodeSocketContext.NodeSocket = clientSocket;
 
-            var sendData = Encoding.ASCII.GetBytes($"{cntr++}");
-
-            nodeSocketContext.NodeSocket.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, nodeSocketContext.SendCallback, null);
-
             nodeSocketContext.NodeSocket.BeginReceive(nodeSocketContext.Buffer, 0, nodeSocketContext.Buffer.Length, 
                 SocketFlags.None, nodeSocketContext.ReceiveCallback, null);
 
             ss.Add(nodeSocketContext);
+
+            nodeSocketContext.Send(new TransferMessage() { Data = Encoding.ASCII.GetBytes($"{cntr++}")});
 
             serverSocket.BeginAccept(AcceptCallback, null);
         }

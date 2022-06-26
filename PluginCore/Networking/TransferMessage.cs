@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -9,6 +10,20 @@ namespace SharedServer.Networking
 {
 	public class TransferMessage
 	{
+		public byte[] Data { get; set; }
+	}
 
-    }
+	public static class TransferMessageExtensions
+	{
+		public static string GetJSONString(this TransferMessage transferMessage)
+		{
+			return JsonConvert.SerializeObject(transferMessage);
+		}
+
+		public static TransferMessage? GetTransferMessage(this byte[] byteMessage)
+		{
+			var message = Encoding.ASCII.GetString(byteMessage, 0, byteMessage.Length);
+			return JsonConvert.DeserializeObject<TransferMessage>(message);
+		}
+	}
 }
