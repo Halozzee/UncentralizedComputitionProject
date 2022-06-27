@@ -2,8 +2,12 @@
 {
 	public interface IPluginManager
     {
-        public bool RegisterPlugin(Type pluginType);
+        public Task<string> RegisterPlugin(Type pluginType);
 
-        public PluginResult RunPlugin(Guid pluginId);
+        public Task<PluginResult> RunPlugin(
+            Guid pluginId,
+            PluginInput pluginInputForInitialization,
+            PluginInput pluginInputForRun,
+            PluginInput pluginInputForShutdown);
     }
 }

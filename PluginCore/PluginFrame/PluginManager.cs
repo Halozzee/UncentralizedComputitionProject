@@ -11,20 +11,20 @@ namespace PluginCore.PluginFrame
 	public class PluginManager : IPluginManager
     {
         private List<IPlugin> plugins = new List<IPlugin>();
-        public bool RegisterPlugin(Type pluginType) 
+        public async Task<string> RegisterPlugin(Type pluginType) 
         {
             IPlugin instance = (IPlugin)Activator.CreateInstance(pluginType);
 
             if (instance == null)
             {
-                return false;
+                return "Failed to get instance";
             }
 
-            var result = instance.OnRegistration();
+            var result = await instance.OnRegistration();
 
             if (!result.IsSuccess)
             {
-                return false;
+                return await result.BuildErrorMessage();
             }
 
             if (instance.PluginID == Guid.Empty)
@@ -33,20 +33,22 @@ namespace PluginCore.PluginFrame
             }
 
             plugins.Add(instance);
-            return true;
+            return await result.BuildSuccessMessage();
         }
 
-		public PluginResult RunPlugin(Guid pluginId)
+		public async Task<PluginResult> RunPlugin(
+            Guid pluginId,
+            PluginInput pluginInputForInitialization,
+            PluginInput pluginInputForRun,
+            PluginInput pluginInputForShutdown)
 		{
-            //var pluginToRun = plugins.Find(x => x.PluginID == pluginId);
-            //PluginInput pluginInput = PluginInput.ParseFromTransferMessage(message);
+			var pluginToRun = plugins.Find(x => x.PluginID == pluginId);
 
-            //var initializeResult = pluginToRun.Initialize(pluginInput);
-            //var runResult = pluginToRun.Run(pluginInput);
-            //var shutdownResult = pluginToRun.OnShutdown(pluginInput);
+			var initializeResult = await pluginToRun.Initialize(pluginInputForInitialization);
+			var runResult = await pluginToRun.Run(pluginInputForRun);
+			var shutdownResult = await pluginToRun.OnShutdown(pluginInputForShutdown);
 
-            //return runResult;
-            return null;
-        }
+			return runResult;
+		}
 	}
 }

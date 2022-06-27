@@ -10,9 +10,9 @@ namespace PluginCore.PluginFrame
     {
         Guid PluginID { get; }
         PluginState State { get; }
-        PluginResult OnRegistration();
-        PluginResult Initialize(PluginInput pluginInput);
-        PluginResult Run(PluginInput pluginInput);
-        PluginResult OnShutdown(PluginInput pluginInput);
+        Task<PluginResult> OnRegistration();
+        Task<PluginResult> Initialize(PluginInput pluginInput);
+        Task<PluginResult> Run(PluginInput pluginInput);
+        Task<PluginResult> OnShutdown(PluginInput pluginInput);
     }
 }

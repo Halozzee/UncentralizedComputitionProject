@@ -7,24 +7,24 @@ namespace PluginCore.Plugins
 	{
 		public PluginState State => throw new NotImplementedException();
 
-		public Guid PluginID => PluginScheme.PluginInfo[0];
+		public Guid PluginID => PluginScheme.PluginInfo[nameof(TestPlugin)];
 
-		public PluginResult Initialize(PluginInput pluginInput)
+		public async Task<PluginResult> Initialize(PluginInput pluginInput)
 		{
-			return null;
+			throw new NotImplementedException();
 		}
 
-		public PluginResult OnRegistration()
+		public async Task<PluginResult> OnRegistration()
 		{
-			return null;
+			throw new NotImplementedException();
 		}
 
-		public PluginResult OnShutdown(PluginInput pluginInput)
+		public async Task<PluginResult> OnShutdown(PluginInput pluginInput)
 		{
-			return null;
+			throw new NotImplementedException();
 		}
 
-		public PluginResult Run(PluginInput pluginInput)
+		public async Task<PluginResult> Run(PluginInput pluginInput)
 		{
 			int a = 0;
 			a++;
