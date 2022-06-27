@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NodeServer
+namespace MainFrame
 {
 	internal static class ServerConfiguration
 	{

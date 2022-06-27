@@ -1,6 +1,4 @@
-﻿using PluginCore.PluginCore;
-using SharedServer.Networking;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +6,7 @@ using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PluginCore
+namespace PluginCore.PluginFrame
 {
 	public class PluginManager : IPluginManager
     {
@@ -38,16 +36,17 @@ namespace PluginCore
             return true;
         }
 
-		public PluginResult RunPlugin(Guid pluginId, TransferMessage message)
+		public PluginResult RunPlugin(Guid pluginId)
 		{
-            var pluginToRun = plugins.Find(x => x.PluginID == pluginId);
-            PluginInput pluginInput = PluginInput.ParseFromTransferMessage(message);
+            //var pluginToRun = plugins.Find(x => x.PluginID == pluginId);
+            //PluginInput pluginInput = PluginInput.ParseFromTransferMessage(message);
 
-            var initializeResult = pluginToRun.Initialize(pluginInput);
-            var runResult = pluginToRun.Run(pluginInput);
-            var shutdownResult = pluginToRun.OnShutdown(pluginInput);
+            //var initializeResult = pluginToRun.Initialize(pluginInput);
+            //var runResult = pluginToRun.Run(pluginInput);
+            //var shutdownResult = pluginToRun.OnShutdown(pluginInput);
 
-            return runResult;
+            //return runResult;
+            return null;
         }
 	}
 }

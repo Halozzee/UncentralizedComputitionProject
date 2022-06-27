@@ -1,20 +1,20 @@
 ﻿using Newtonsoft.Json;
-using SharedServer.Networking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PluginCore.PluginCore
+namespace PluginCore.PluginFrame
 {
 	public class PluginInput
 	{
 		public byte[] InputData { get; set; }
 
-		public static PluginInput ParseFromTransferMessage(TransferMessage message) 
+		public static PluginInput ParseFromTransferMessage() 
 		{
-			return new PluginInput() { InputData = message.Data };
+			//TODO
+			return null;
 		}
 
 		public T DataToObject<T>()

@@ -1,4 +1,4 @@
-﻿namespace PluginCore
+﻿namespace PluginCore.PluginFrame
 {
 	public enum PluginState
     {

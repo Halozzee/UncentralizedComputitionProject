@@ -6,9 +6,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharedServer.Networking
+namespace MainFrame.Networking
 {
-	// TODO: ПЕРЕМЕСТИТЬ К СЕРВЕРУ
 	public class TransferMessage
 	{
 		public Guid CommunicationId { get; set; }

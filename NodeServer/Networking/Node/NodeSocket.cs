@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
-using NodeServer;
-using NodeServer.Networking;
-using SharedServer.Networking;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace NodeMainFrame.Networking
+namespace MainFrame.Networking.Node
 {
 	public class NodeSocket 
 	{

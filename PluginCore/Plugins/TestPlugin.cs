@@ -1,9 +1,6 @@
-﻿using NodeServer.Plugins;
-using PluginCore;
-using PluginCore.PluginCore;
-using SharedServer.Networking;
+﻿using PluginCore.PluginFrame;
 
-namespace MainFrame.Node.Plugins
+namespace PluginCore.Plugins
 {
 	// TODO: перекинуть в PluginCore
 	public class TestPlugin : IPlugin
