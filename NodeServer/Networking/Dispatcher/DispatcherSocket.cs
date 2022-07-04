@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using static NodeServer.Networking.SocketBase;
 
 namespace MainFrame.Networking.Dispatcher
 {
@@ -13,7 +14,13 @@ namespace MainFrame.Networking.Dispatcher
     {
         private Socket serverSocket;
         private List<NodeSocketContext> nodeSocketContexts = new List<NodeSocketContext>(); // We will only accept one socket.
-        int cntr = 0;
+
+        private MessageRecievedHandler onMessageRecieved;
+
+        public void SetMessageRecievedDefaultHandler(MessageRecievedHandler onMessageRecieved) 
+        {
+            this.onMessageRecieved = onMessageRecieved;
+        }
 
         public void StartServer(IPAddress ipAddress, int port)
         {
@@ -31,7 +38,7 @@ namespace MainFrame.Networking.Dispatcher
             clientSocket.ReceiveBufferSize = ServerConfiguration.BufferSize;
             clientSocket.SendBufferSize = ServerConfiguration.BufferSize;
 
-            NodeSocketContext nodeSocketContext = new NodeSocketContext();
+            NodeSocketContext nodeSocketContext = new NodeSocketContext(onMessageRecieved);
 
             nodeSocketContext.NodeSocket = clientSocket;
 
@@ -39,8 +46,6 @@ namespace MainFrame.Networking.Dispatcher
                 SocketFlags.None, nodeSocketContext.ReceiveCallback, null);
 
             nodeSocketContexts.Add(nodeSocketContext);
-
-            nodeSocketContext.Send(new TransferMessage() { Data = Encoding.ASCII.GetBytes($"{cntr++}")});
 
             serverSocket.BeginAccept(AcceptCallback, null);
         }

@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MainFrame
+namespace NodeServer.Networking
 {
-	internal static class ServerConfiguration
+	public class SocketBase
 	{
-		public const int BufferSize = 262224;
-		public const int BufferAccessorSize = 4;
+		public delegate void MessageRecievedHandler(object sender, TransferMessage? message);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using MainFrame.Networking.Dispatcher;
+﻿using MainFrame.Networking;
+using MainFrame.Networking.Dispatcher;
 using MainFrame.Node;
 using System.Net;
 
@@ -16,9 +17,10 @@ namespace MainFrame.Node
 			//Console.ReadLine();
 			// --NODE--
 
+			Program p = new Program();
+
 			// --Dispatcher--
-			DispatcherSocket s = new DispatcherSocket();
-			s.StartServer(IPAddress.Parse("127.0.0.1"), 9000);
+			Dispatcher d = new Dispatcher();
 			Console.WriteLine("Test");
 			Console.ReadLine();
 			// --Dispatcher--

@@ -10,7 +10,8 @@ namespace MainFrame.Networking
 {
 	public class TransferMessage
 	{
-		public Guid CommunicationId { get; set; }
+		public Guid FromNodeId { get; set; }
+		public Guid ToNodeId { get; set; }
 		public Guid PluginId { get; set; }
 		public byte[] Data { get; set; }
 		public bool ContainsResult { get; set; }

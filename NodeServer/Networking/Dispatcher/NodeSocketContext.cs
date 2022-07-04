@@ -1,26 +1,21 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json;
+using NodeServer.Networking;
 
 namespace MainFrame.Networking.Dispatcher
 {
-	public class NodeSocketContext
+	public class NodeSocketContext : SocketBase
     {
-        public Guid NodeId { get; set; } = Guid.NewGuid();
+        public Guid NodeId { get; set; }
         public Socket NodeSocket;
         internal BufferPool bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
-        public delegate void MessageRecievedHandler(object sender, TransferMessage? message);
         public event MessageRecievedHandler OnMessageRecieved;
 
-        public NodeSocketContext()
+        public NodeSocketContext(MessageRecievedHandler onMessageRecieved)
 		{
-			OnMessageRecieved += NodeSocketContext_OnMessageRecieved;
-		}
-
-		private void NodeSocketContext_OnMessageRecieved(object sender, TransferMessage? message)
-		{
-            Console.WriteLine($"{NodeId} : {message.GetJSONString()}");
+            OnMessageRecieved += onMessageRecieved;
         }
 
         private void SendCallback(IAsyncResult AR)
@@ -40,6 +35,15 @@ namespace MainFrame.Networking.Dispatcher
                 }
 
                 var message = bufferAccessor.GetBuffer().GetTransferMessage();
+
+                if(message.FromNodeId != null)
+				{
+                    NodeId = message.FromNodeId;
+                }
+                else
+				{
+                    NodeId = Guid.NewGuid();
+				}
 
                 OnMessageRecieved?.Invoke(this, message);
 
