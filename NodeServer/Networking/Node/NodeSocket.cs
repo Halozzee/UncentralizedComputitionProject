@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MainFrame.Networking.Messaging;
+using Newtonsoft.Json;
 using NodeServer.Networking;
 using System.Net;
 using System.Net.Sockets;
@@ -11,11 +12,23 @@ namespace MainFrame.Networking.Node
         private Socket _socket;
         private BufferPool _bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
-        private MessageRecievedHandler _onMessageRecieved;
+        public event MessageRecievedHandler _onMessageRecievedBeforeDefault;
+        public event MessageRecievedHandler _onMessageRecievedDefault;
+        public event MessageRecievedHandler _onMessageRecievedAfterDefault;
+
+        public void SetMessageRecievedBeforeDefaultHandler(MessageRecievedHandler onMessageRecieved)
+        {
+            this._onMessageRecievedBeforeDefault += onMessageRecieved;
+        }
 
         public void SetMessageRecievedDefaultHandler(MessageRecievedHandler onMessageRecieved)
         {
-            this._onMessageRecieved = onMessageRecieved;
+            this._onMessageRecievedDefault += onMessageRecieved;
+        }
+
+        public void SetMessageRecievedAfterDefaultHandler(MessageRecievedHandler onMessageRecieved)
+        {
+            this._onMessageRecievedAfterDefault += onMessageRecieved;
         }
 
         public NodeSocket(IPAddress ipAddress, int port)
@@ -41,7 +54,9 @@ namespace MainFrame.Networking.Node
 
             var message = _bufferAccessor.GetBuffer().GetTransferMessage();
 
-            _onMessageRecieved?.Invoke(this, message);
+            _onMessageRecievedBeforeDefault?.Invoke(this, message);
+            _onMessageRecievedDefault?.Invoke(this, message);
+            _onMessageRecievedAfterDefault?.Invoke(this, message);
 
             _bufferAccessor.MoveToNext();
             _bufferAccessor.CleanBuffer();

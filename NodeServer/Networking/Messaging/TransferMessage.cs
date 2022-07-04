@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MainFrame.Networking
+namespace MainFrame.Networking.Messaging
 {
 	public class TransferMessage
 	{

@@ -1,5 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Text;
+using MainFrame.Networking.Messaging;
 using Newtonsoft.Json;
 using NodeServer.Networking;
 
@@ -11,11 +12,18 @@ namespace MainFrame.Networking.Dispatcher
         public Socket NodeSocket;
         internal BufferPool bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
-        public event MessageRecievedHandler OnMessageRecieved;
+        public event MessageRecievedHandler _onMessageRecievedBeforeDefault;
+        public event MessageRecievedHandler _onMessageRecievedDefault;
+        public event MessageRecievedHandler _onMessageRecievedAfterDefault;
 
-        public NodeSocketContext(MessageRecievedHandler onMessageRecieved)
+        public NodeSocketContext(
+            MessageRecievedHandler onMessageRecievedBeforeDefault, 
+            MessageRecievedHandler onMessageRecievedDefault,
+            MessageRecievedHandler onMessageRecievedAfterDefault)
 		{
-            OnMessageRecieved += onMessageRecieved;
+            _onMessageRecievedBeforeDefault += onMessageRecievedBeforeDefault;
+            _onMessageRecievedDefault += onMessageRecievedDefault;
+            _onMessageRecievedAfterDefault += onMessageRecievedAfterDefault;
         }
 
         private void SendCallback(IAsyncResult AR)
@@ -45,7 +53,9 @@ namespace MainFrame.Networking.Dispatcher
                     NodeId = Guid.NewGuid();
 				}
 
-                OnMessageRecieved?.Invoke(this, message);
+                _onMessageRecievedBeforeDefault?.Invoke(this, message);
+                _onMessageRecievedDefault?.Invoke(this, message);
+                _onMessageRecievedAfterDefault?.Invoke(this, message);
 
                 bufferAccessor.MoveToNext();
                 bufferAccessor.CleanBuffer();
@@ -54,7 +64,14 @@ namespace MainFrame.Networking.Dispatcher
 
                 // Start receiving data again.
                 NodeSocket.BeginReceive(nextBuffer, 0, nextBuffer.Length, SocketFlags.None, ReceiveCallback, null);
-                Send(new TransferMessage { Data = Encoding.ASCII.GetBytes($"{NodeId} : Acknowledge") });
+
+                TransferMessageBuilder transferMessageBuilder = new TransferMessageBuilder();
+
+                transferMessageBuilder
+                    .WithStringData($"{NodeId} : Acknowledge")
+                    .WithContainsResult(true);
+
+                Send(transferMessageBuilder.Build());
             }
 			catch (Exception ex)
 			{

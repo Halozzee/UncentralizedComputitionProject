@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MainFrame.Networking.Messaging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,11 +16,23 @@ namespace MainFrame.Networking.Dispatcher
         private Socket serverSocket;
         private List<NodeSocketContext> nodeSocketContexts = new List<NodeSocketContext>(); // We will only accept one socket.
 
-        private MessageRecievedHandler onMessageRecieved;
+        private MessageRecievedHandler _onMessageRecievedBeforeDefault;
+        private MessageRecievedHandler _onMessageRecievedDefault;
+        private MessageRecievedHandler _onMessageRecievedAfterDefault;
+
+        public void SetMessageRecievedBeforeDefaultHandler(MessageRecievedHandler onMessageRecieved)
+        {
+            this._onMessageRecievedBeforeDefault += onMessageRecieved;
+        }
 
         public void SetMessageRecievedDefaultHandler(MessageRecievedHandler onMessageRecieved) 
         {
-            this.onMessageRecieved = onMessageRecieved;
+            this._onMessageRecievedDefault += onMessageRecieved;
+        }
+
+        public void SetMessageRecievedAfterDefaultHandler(MessageRecievedHandler onMessageRecieved)
+        {
+            this._onMessageRecievedAfterDefault += onMessageRecieved;
         }
 
         public void StartServer(IPAddress ipAddress, int port)
@@ -38,7 +51,7 @@ namespace MainFrame.Networking.Dispatcher
             clientSocket.ReceiveBufferSize = ServerConfiguration.BufferSize;
             clientSocket.SendBufferSize = ServerConfiguration.BufferSize;
 
-            NodeSocketContext nodeSocketContext = new NodeSocketContext(onMessageRecieved);
+            NodeSocketContext nodeSocketContext = new NodeSocketContext(_onMessageRecievedBeforeDefault, _onMessageRecievedDefault, _onMessageRecievedAfterDefault);
 
             nodeSocketContext.NodeSocket = clientSocket;
 

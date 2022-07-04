@@ -1,4 +1,5 @@
-﻿using MainFrame.Networking.Node;
+﻿using MainFrame.Networking.Messaging;
+using MainFrame.Networking.Node;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,9 @@ namespace MainFrame.Networking.Node
 		public void Connect(IPAddress iPAddress, int port) 
 		{
 			nodeSocket = new NodeSocket(iPAddress, port);
-			nodeSocket.SetMessageRecievedDefaultHandler(T_OnMessageRecieved);
+			nodeSocket.SetMessageRecievedBeforeDefaultHandler(BeforeDefault);
+			nodeSocket.SetMessageRecievedDefaultHandler(Default);
+			nodeSocket.SetMessageRecievedAfterDefaultHandler(AfterDefault);
 
 			Console.WriteLine("Test");
 			Console.ReadLine();
@@ -27,12 +30,28 @@ namespace MainFrame.Networking.Node
 			while (true)
 			{
 				string input = Console.ReadLine();
-				nodeSocket.Send(new TransferMessage() { Data = Encoding.ASCII.GetBytes(input) });
+
+				TransferMessageBuilder transferMessageBuilder = new TransferMessageBuilder();
+
+				transferMessageBuilder
+					.WithStringData(input);
+
+				nodeSocket.Send(transferMessageBuilder.Build());
 			}
 		}
-
-		private static void T_OnMessageRecieved(object sender, TransferMessage? message)
+		private static void BeforeDefault(object sender, TransferMessage? message)
 		{
+			Console.WriteLine(1);
+			Console.WriteLine(message.GetJSONString());
+		}
+		private static void Default(object sender, TransferMessage? message)
+		{
+			Console.WriteLine(2);
+			Console.WriteLine(message.GetJSONString());
+		}
+		private static void AfterDefault(object sender, TransferMessage? message)
+		{
+			Console.WriteLine(3);
 			Console.WriteLine(message.GetJSONString());
 		}
 	}

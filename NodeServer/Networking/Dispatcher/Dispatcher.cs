@@ -1,4 +1,5 @@
 ﻿using MainFrame.Networking.Dispatcher;
+using MainFrame.Networking.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,23 @@ namespace MainFrame.Networking.Dispatcher
 
 		public Dispatcher()
 		{
-			dispatcherSocket.SetMessageRecievedDefaultHandler(NodeSocketContext_OnMessageRecieved);
+			dispatcherSocket.SetMessageRecievedBeforeDefaultHandler(BeforeDefault);
+			dispatcherSocket.SetMessageRecievedDefaultHandler(Default);
+			dispatcherSocket.SetMessageRecievedAfterDefaultHandler(AfterDefault);
 			dispatcherSocket.StartServer(IPAddress.Parse("127.0.0.1"), 9000);
 		}
 
-		private void NodeSocketContext_OnMessageRecieved(object sender, TransferMessage? message)
+		private void BeforeDefault(object sender, TransferMessage? message)
 		{
-			Console.WriteLine($"{message.FromNodeId} : {message.GetJSONString()}");
+			Console.WriteLine($"{message.FromNodeId} 1 : {message.GetJSONString()}");
+		}
+		private void Default(object sender, TransferMessage? message)
+		{
+			Console.WriteLine($"{message.FromNodeId} 2 : {message.GetJSONString()}");
+		}
+		private void AfterDefault(object sender, TransferMessage? message)
+		{
+			Console.WriteLine($"{message.FromNodeId} 3 : {message.GetJSONString()}");
 		}
 	}
 }
