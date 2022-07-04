@@ -54,9 +54,18 @@ namespace MainFrame.Networking.Node
 
             var message = _bufferAccessor.GetBuffer().GetTransferMessage();
 
-            _onMessageRecievedBeforeDefault?.Invoke(this, message);
-            _onMessageRecievedDefault?.Invoke(this, message);
-            _onMessageRecievedAfterDefault?.Invoke(this, message);
+            if (!message.SkipProcessing)
+            {
+                _onMessageRecievedBeforeDefault?.Invoke(this, message);
+            }
+            if (!message.SkipProcessing)
+            {
+                _onMessageRecievedDefault?.Invoke(this, message);
+            }
+            if (!message.SkipProcessing)
+            {
+                _onMessageRecievedAfterDefault?.Invoke(this, message);
+            }
 
             _bufferAccessor.MoveToNext();
             _bufferAccessor.CleanBuffer();

@@ -53,9 +53,18 @@ namespace MainFrame.Networking.Dispatcher
                     NodeId = Guid.NewGuid();
 				}
 
-                _onMessageRecievedBeforeDefault?.Invoke(this, message);
-                _onMessageRecievedDefault?.Invoke(this, message);
-                _onMessageRecievedAfterDefault?.Invoke(this, message);
+                if (!message.SkipProcessing)
+                {
+                    _onMessageRecievedBeforeDefault?.Invoke(this, message);
+                }
+                if (!message.SkipProcessing)
+                {
+                    _onMessageRecievedDefault?.Invoke(this, message);
+                }
+                if (!message.SkipProcessing)
+                {
+                    _onMessageRecievedAfterDefault?.Invoke(this, message);
+                }
 
                 bufferAccessor.MoveToNext();
                 bufferAccessor.CleanBuffer();
