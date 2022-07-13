@@ -9,6 +9,5 @@ namespace NodeServer.Networking
 {
 	public class SocketBase
 	{
-		public delegate void MessageRecievedHandler(object sender, TransferMessage? message);
 	}
 }

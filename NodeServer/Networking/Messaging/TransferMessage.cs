@@ -15,7 +15,6 @@ namespace MainFrame.Networking.Messaging
 		public Guid PluginId { get; set; }
 		public byte[] Data { get; set; }
 		public bool ContainsResult { get; set; }
-		public bool SkipProcessing { get; set; }
 	}
 
 	public static class TransferMessageExtensions

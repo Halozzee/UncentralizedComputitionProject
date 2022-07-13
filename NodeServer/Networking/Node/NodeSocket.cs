@@ -1,6 +1,7 @@
 ﻿using MainFrame.Networking.Messaging;
 using Newtonsoft.Json;
 using NodeServer.Networking;
+using NodeServer.Networking.Pipeline;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -12,34 +13,20 @@ namespace MainFrame.Networking.Node
         private Socket _socket;
         private BufferPool _bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
-        public event MessageRecievedHandler _onMessageRecievedBeforeDefault;
-        public event MessageRecievedHandler _onMessageRecievedDefault;
-        public event MessageRecievedHandler _onMessageRecievedAfterDefault;
+        public PipelineControl<MessagePipelineDelegate> DefaultMessagePipeline { get; set; }
 
-        public void SetMessageRecievedBeforeDefaultHandler(MessageRecievedHandler onMessageRecieved)
-        {
-            this._onMessageRecievedBeforeDefault += onMessageRecieved;
-        }
-
-        public void SetMessageRecievedDefaultHandler(MessageRecievedHandler onMessageRecieved)
-        {
-            this._onMessageRecievedDefault += onMessageRecieved;
-        }
-
-        public void SetMessageRecievedAfterDefaultHandler(MessageRecievedHandler onMessageRecieved)
-        {
-            this._onMessageRecievedAfterDefault += onMessageRecieved;
-        }
-
-        public NodeSocket(IPAddress ipAddress, int port)
+        public NodeSocket()
 		{
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            // Connect to the specified host.
-            var endPoint = new IPEndPoint(ipAddress, port);
 
             _socket.ReceiveBufferSize = ServerConfiguration.BufferSize;
             _socket.SendBufferSize = ServerConfiguration.BufferSize;
+        }
 
+        public void Connect(IPAddress ipAddress, int port)
+        {            
+            // Connect to the specified host.
+            var endPoint = new IPEndPoint(ipAddress, port);
             _socket.BeginConnect(endPoint, ConnectCallback, null);
         }
 
@@ -54,17 +41,18 @@ namespace MainFrame.Networking.Node
 
             var message = _bufferAccessor.GetBuffer().GetTransferMessage();
 
-            if (!message.SkipProcessing)
+            if (DefaultMessagePipeline != null)
             {
-                _onMessageRecievedBeforeDefault?.Invoke(this, message);
-            }
-            if (!message.SkipProcessing)
-            {
-                _onMessageRecievedDefault?.Invoke(this, message);
-            }
-            if (!message.SkipProcessing)
-            {
-                _onMessageRecievedAfterDefault?.Invoke(this, message);
+                while (!DefaultMessagePipeline.IsEnd())
+                {
+                    if (!DefaultMessagePipeline.SkipFurther)
+                    {
+                        var pipelineItem = DefaultMessagePipeline.NextItem();
+                        pipelineItem.Invoke(this, message);
+                    }
+                }
+
+                DefaultMessagePipeline.Reset();
             }
 
             _bufferAccessor.MoveToNext();

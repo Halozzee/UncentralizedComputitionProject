@@ -3,6 +3,7 @@ using System.Text;
 using MainFrame.Networking.Messaging;
 using Newtonsoft.Json;
 using NodeServer.Networking;
+using NodeServer.Networking.Pipeline;
 
 namespace MainFrame.Networking.Dispatcher
 {
@@ -12,18 +13,11 @@ namespace MainFrame.Networking.Dispatcher
         public Socket NodeSocket;
         internal BufferPool bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
-        public event MessageRecievedHandler _onMessageRecievedBeforeDefault;
-        public event MessageRecievedHandler _onMessageRecievedDefault;
-        public event MessageRecievedHandler _onMessageRecievedAfterDefault;
+        public PipelineControl<MessagePipelineDelegate> DefaultMessagePipeline { get; set; }
 
-        public NodeSocketContext(
-            MessageRecievedHandler onMessageRecievedBeforeDefault, 
-            MessageRecievedHandler onMessageRecievedDefault,
-            MessageRecievedHandler onMessageRecievedAfterDefault)
+        public NodeSocketContext(PipelineControl<MessagePipelineDelegate> messagePipelineQueue)
 		{
-            _onMessageRecievedBeforeDefault += onMessageRecievedBeforeDefault;
-            _onMessageRecievedDefault += onMessageRecievedDefault;
-            _onMessageRecievedAfterDefault += onMessageRecievedAfterDefault;
+            DefaultMessagePipeline = messagePipelineQueue;
         }
 
         private void SendCallback(IAsyncResult AR)
@@ -53,17 +47,18 @@ namespace MainFrame.Networking.Dispatcher
                     NodeId = Guid.NewGuid();
 				}
 
-                if (!message.SkipProcessing)
+                if (DefaultMessagePipeline != null)
                 {
-                    _onMessageRecievedBeforeDefault?.Invoke(this, message);
-                }
-                if (!message.SkipProcessing)
-                {
-                    _onMessageRecievedDefault?.Invoke(this, message);
-                }
-                if (!message.SkipProcessing)
-                {
-                    _onMessageRecievedAfterDefault?.Invoke(this, message);
+                    while (!DefaultMessagePipeline.IsEnd())
+                    {
+                        if (!DefaultMessagePipeline.SkipFurther)
+                        {
+                            var pipelineItem = DefaultMessagePipeline.NextItem();
+                            pipelineItem.Invoke(this, message);
+                        }
+                    }
+
+                    DefaultMessagePipeline.Reset();
                 }
 
                 bufferAccessor.MoveToNext();
@@ -73,14 +68,6 @@ namespace MainFrame.Networking.Dispatcher
 
                 // Start receiving data again.
                 NodeSocket.BeginReceive(nextBuffer, 0, nextBuffer.Length, SocketFlags.None, ReceiveCallback, null);
-
-                TransferMessageBuilder transferMessageBuilder = new TransferMessageBuilder();
-
-                transferMessageBuilder
-                    .WithStringData($"{NodeId} : Acknowledge")
-                    .WithContainsResult(true);
-
-                Send(transferMessageBuilder.Build());
             }
 			catch (Exception ex)
 			{
