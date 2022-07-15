@@ -1,9 +1,9 @@
 ﻿using System.Net.Sockets;
 using System.Text;
-using MainFrame.Networking.Messaging;
 using Newtonsoft.Json;
 using NodeServer.Networking;
 using NodeServer.Networking.Pipeline;
+using Shared.Messaging;
 
 namespace MainFrame.Networking.Dispatcher
 {
@@ -12,8 +12,6 @@ namespace MainFrame.Networking.Dispatcher
         public Guid NodeId { get; set; }
         public Socket NodeSocket;
         internal BufferPool bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
-
-        public PipelineControl<MessagePipelineDelegate> DefaultMessagePipeline { get; set; }
 
         public NodeSocketContext(PipelineControl<MessagePipelineDelegate> messagePipelineQueue)
 		{
@@ -38,7 +36,7 @@ namespace MainFrame.Networking.Dispatcher
 
                 var message = bufferAccessor.GetBuffer().GetTransferMessage();
 
-                if(message.FromNodeId != null)
+                if(message.FromNodeId != Guid.Empty)
 				{
                     NodeId = message.FromNodeId;
                 }
@@ -47,19 +45,7 @@ namespace MainFrame.Networking.Dispatcher
                     NodeId = Guid.NewGuid();
 				}
 
-                if (DefaultMessagePipeline != null)
-                {
-                    while (!DefaultMessagePipeline.IsEnd())
-                    {
-                        if (!DefaultMessagePipeline.SkipFurther)
-                        {
-                            var pipelineItem = DefaultMessagePipeline.NextItem();
-                            pipelineItem.Invoke(this, message);
-                        }
-                    }
-
-                    DefaultMessagePipeline.Reset();
-                }
+                ProcessDefaultMessagePipeline(message);
 
                 bufferAccessor.MoveToNext();
                 bufferAccessor.CleanBuffer();

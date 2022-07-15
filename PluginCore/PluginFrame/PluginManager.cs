@@ -11,29 +11,30 @@ namespace PluginCore.PluginFrame
 	public class PluginManager : IPluginManager
     {
         private List<IPlugin> plugins = new List<IPlugin>();
-        public async Task<string> RegisterPlugin(Type pluginType) 
+        public async Task<PluginResult> RegisterPlugin(Type pluginType) 
         {
             IPlugin instance = (IPlugin)Activator.CreateInstance(pluginType);
 
-            if (instance == null)
-            {
-                return "Failed to get instance";
-            }
+            //if (instance == null)
+            //{
+            //    return "Failed to get instance";
+            //}
 
-            var result = await instance.OnRegistration();
+            //var result = await instance.OnRegistration();
 
-            if (!result.IsSuccess)
-            {
-                return await result.BuildErrorMessage();
-            }
+            //if (!result.IsSuccess)
+            //{
+            //    return await result.BuildErrorMessage();
+            //}
 
-            if (instance.PluginID == Guid.Empty)
-            {
-                throw new ArgumentNullException("Plugin ID has to be provided!");
-            }
+            //if (instance.PluginID == Guid.Empty)
+            //{
+            //    throw new ArgumentNullException("Plugin ID has to be provided!");
+            //}
 
-            plugins.Add(instance);
-            return await result.BuildSuccessMessage();
+            //plugins.Add(instance);
+            //return await result.BuildSuccessMessage();
+            return null;
         }
 
 		public async Task<PluginResult> RunPlugin(

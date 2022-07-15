@@ -2,7 +2,7 @@
 {
 	public interface IPluginManager
     {
-        public Task<string> RegisterPlugin(Type pluginType);
+        public Task<PluginResult> RegisterPlugin(Type pluginType);
 
         public Task<PluginResult> RunPlugin(
             Guid pluginId,

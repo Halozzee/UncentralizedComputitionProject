@@ -1,5 +1,5 @@
-﻿using MainFrame.Networking.Messaging;
-using NodeServer.Networking.Pipeline;
+﻿using NodeServer.Networking.Pipeline;
+using Shared.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,6 +1,6 @@
-﻿using MainFrame.Networking.Messaging;
-using MainFrame.Networking.Node;
+﻿using MainFrame.Networking.Node;
 using NodeServer.Networking.Pipeline;
+using Shared.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +59,6 @@ namespace MainFrame.Networking.Node
 		}
 		private static void AfterDefault(object sender, TransferMessage? message)
 		{
-			(sender as NodeSocket).DefaultMessagePipeline.SkipFurther = false;
 			Console.WriteLine(3);
 			Console.WriteLine(message.GetJSONString());
 		}

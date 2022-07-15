@@ -1,17 +1,13 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace MainFrame.Networking.Messaging
+namespace Shared.Messaging
 {
 	public class TransferMessageBuilder
 	{
 		TransferMessage _resultTransferMessage = new TransferMessage();
 
-		public TransferMessageBuilder FromNodeId(Guid id) 
+		public TransferMessageBuilder FromNodeId(Guid id)
 		{
 			_resultTransferMessage.FromNodeId = id;
 			return this;
@@ -59,7 +55,7 @@ namespace MainFrame.Networking.Messaging
 			return this;
 		}
 
-		public TransferMessage Build() 
+		public TransferMessage Build()
 		{
 			return _resultTransferMessage;
 		}

@@ -1,4 +1,4 @@
-﻿using MainFrame.Networking.Messaging;
+﻿using Shared.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +10,12 @@ namespace NodeServer.Networking.Pipeline
 	public delegate void MessagePipelineDelegate(object sender, TransferMessage? message);
 	public class PipelineControl<T> where T : System.Delegate
 	{
-		public bool SkipFurther; 
+		public bool PipelineStopped { get; private set; } 
 
 		private List<T> _pipelineQueue;
 		private int _counter;
+
+		// TODO: сделать Intercept
 
 		public PipelineControl()
 		{
@@ -36,10 +38,15 @@ namespace NodeServer.Networking.Pipeline
 			return _pipelineQueue[_counter++];
 		}
 
+		public void StopPipeline()
+		{
+			PipelineStopped = true;
+		}
+
 		public void Reset() 
 		{
 			_counter = 0;
-			SkipFurther = false;
+			PipelineStopped = false;
 		}
 
 		public bool IsEnd() 

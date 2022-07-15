@@ -28,7 +28,7 @@ namespace PluginCore.Plugins
 		{
 			int a = 0;
 			a++;
-			return new PluginResult { ExecutionResult = a };
+			return null;  /*new PluginResult { ExecutionResult = a };*/
 		}
 	}
 }

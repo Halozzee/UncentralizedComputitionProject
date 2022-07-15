@@ -1,6 +1,6 @@
 ﻿using MainFrame.Networking.Dispatcher;
-using MainFrame.Networking.Messaging;
 using NodeServer.Networking.Pipeline;
+using Shared.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +36,7 @@ namespace MainFrame.Networking.Dispatcher
 			builder = builder.FromNodeId(Guid.NewGuid()).WithStringData("Acknowledge");
 
 			(sender as NodeSocketContext).Send(builder.Build());
-			(sender as NodeSocketContext).DefaultMessagePipeline.SkipFurther = true;
+			(sender as NodeSocketContext).DefaultMessagePipeline.StopPipeline();
 		}
 		private void Default(object sender, TransferMessage? message)
 		{

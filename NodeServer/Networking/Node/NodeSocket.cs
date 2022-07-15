@@ -1,7 +1,7 @@
-﻿using MainFrame.Networking.Messaging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NodeServer.Networking;
 using NodeServer.Networking.Pipeline;
+using Shared.Messaging;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -12,8 +12,6 @@ namespace MainFrame.Networking.Node
     {
         private Socket _socket;
         private BufferPool _bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
-
-        public PipelineControl<MessagePipelineDelegate> DefaultMessagePipeline { get; set; }
 
         public NodeSocket()
 		{
@@ -41,19 +39,7 @@ namespace MainFrame.Networking.Node
 
             var message = _bufferAccessor.GetBuffer().GetTransferMessage();
 
-            if (DefaultMessagePipeline != null)
-            {
-                while (!DefaultMessagePipeline.IsEnd())
-                {
-                    if (!DefaultMessagePipeline.SkipFurther)
-                    {
-                        var pipelineItem = DefaultMessagePipeline.NextItem();
-                        pipelineItem.Invoke(this, message);
-                    }
-                }
-
-                DefaultMessagePipeline.Reset();
-            }
+            ProcessDefaultMessagePipeline(message);
 
             _bufferAccessor.MoveToNext();
             _bufferAccessor.CleanBuffer();
