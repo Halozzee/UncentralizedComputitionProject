@@ -9,6 +9,7 @@ namespace MainFrame.Networking.Dispatcher
 {
 	public class NodeSocketContext : SocketBase
     {
+        public Guid DispatcherId { get; set; }
         public Guid NodeId { get; set; }
         public Socket NodeSocket;
         internal BufferPool bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
@@ -36,14 +37,10 @@ namespace MainFrame.Networking.Dispatcher
 
                 var message = bufferAccessor.GetBuffer().GetTransferMessage();
 
-                if(message.FromNodeId != Guid.Empty)
-				{
+                if (message.FromNodeId != Guid.Empty)
+                {
                     NodeId = message.FromNodeId;
                 }
-                else
-				{
-                    NodeId = Guid.NewGuid();
-				}
 
                 ProcessDefaultMessagePipeline(message);
 
@@ -77,6 +74,16 @@ namespace MainFrame.Networking.Dispatcher
 
         public void Send(TransferMessage transferMessage)
         {
+            if(DispatcherId != Guid.Empty)
+			{
+                transferMessage.FromNodeId = NodeId;
+            }
+
+            if (NodeId != Guid.Empty)
+            {
+                transferMessage.ToNodeId = NodeId;
+            }
+
             var message = JsonConvert.SerializeObject(transferMessage);
             Send(message);
         }

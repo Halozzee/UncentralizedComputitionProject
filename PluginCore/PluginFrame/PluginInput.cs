@@ -11,6 +11,5 @@ namespace PluginCore.PluginFrame
 	public abstract class PluginInput
 	{
 		public object? InputData { get; set; }
-		public abstract void ParseFromTransferMessage(TransferMessage transferMessage);
 	}
 }

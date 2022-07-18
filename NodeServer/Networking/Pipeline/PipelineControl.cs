@@ -10,22 +10,33 @@ namespace NodeServer.Networking.Pipeline
 	public delegate void MessagePipelineDelegate(object sender, TransferMessage? message);
 	public class PipelineControl<T> where T : System.Delegate
 	{
-		public bool PipelineStopped { get; private set; } 
+		public bool PipelineStopped { get; private set; }
 
+		private List<int> _toBeRemovedAfterExecution;
 		private List<T> _pipelineQueue;
 		private int _counter;
-
-		// TODO: сделать Intercept
 
 		public PipelineControl()
 		{
 			_counter = 0;
 			_pipelineQueue = new List<T>();
+			_toBeRemovedAfterExecution = new List<int>();
 		}
 
 		public void AddItem(T pipelineItem)
 		{
 			_pipelineQueue.Add(pipelineItem);
+		}
+
+		public void InsertItem(int i, T pipelineItem) 
+		{
+			_pipelineQueue.Insert(i, pipelineItem);
+		}
+
+		public void Intercept(T pipelineItem)
+		{
+			_pipelineQueue.Insert(_counter + 1, pipelineItem);
+			_toBeRemovedAfterExecution.Add(_counter + 1);
 		}
 
 		public void SkipItems(int countToSkip = 1)
@@ -35,7 +46,17 @@ namespace NodeServer.Networking.Pipeline
 
 		public T NextItem() 
 		{
-			return _pipelineQueue[_counter++];
+			var pipelineItem = _pipelineQueue[_counter];
+
+			if (_toBeRemovedAfterExecution.Contains(_counter))
+			{
+				_pipelineQueue.RemoveAt(_counter);
+				_toBeRemovedAfterExecution.Remove(_counter);
+			}
+
+			_counter++;
+
+			return pipelineItem;
 		}
 
 		public void StopPipeline()

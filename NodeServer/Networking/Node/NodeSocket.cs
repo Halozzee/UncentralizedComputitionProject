@@ -10,11 +10,13 @@ namespace MainFrame.Networking.Node
 {
 	public class NodeSocket : SocketBase
     {
+        public Guid NodeId { get; set; }
         private Socket _socket;
         private BufferPool _bufferAccessor = new BufferPool(ServerConfiguration.BufferAccessorSize);
 
         public NodeSocket()
 		{
+            NodeId = new Guid();
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             _socket.ReceiveBufferSize = ServerConfiguration.BufferSize;

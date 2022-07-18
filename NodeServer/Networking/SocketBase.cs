@@ -10,7 +10,7 @@ namespace NodeServer.Networking
 {
 	public class SocketBase
 	{
-        public PipelineControl<MessagePipelineDelegate> DefaultMessagePipeline { get; set; }
+        public PipelineControl<MessagePipelineDelegate>? DefaultMessagePipeline { get; set; }
         public void ProcessDefaultMessagePipeline(TransferMessage message) 
 		{
             if (DefaultMessagePipeline != null)

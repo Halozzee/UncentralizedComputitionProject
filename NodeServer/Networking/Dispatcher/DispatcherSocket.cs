@@ -14,6 +14,15 @@ namespace MainFrame.Networking.Dispatcher
 
 	public class DispatcherSocket
     {
+        public Guid DispatcherId { get; set; }
+        public List<Guid> ConnectedSocketGuids 
+        {
+            get 
+            {
+                return nodeSocketContexts.Select(x => x.NodeId).ToList();
+            }
+        }
+
         private Socket serverSocket;
         private List<NodeSocketContext> nodeSocketContexts = new List<NodeSocketContext>(); // We will only accept one socket.
         public PipelineControl<MessagePipelineDelegate> DefaultMessagePipeline { get; set; }
@@ -37,6 +46,7 @@ namespace MainFrame.Networking.Dispatcher
             NodeSocketContext nodeSocketContext = new NodeSocketContext(DefaultMessagePipeline);
 
             nodeSocketContext.NodeSocket = clientSocket;
+            nodeSocketContext.DispatcherId = DispatcherId;
 
             nodeSocketContext.NodeSocket.BeginReceive(nodeSocketContext.bufferAccessor.GetBuffer(), 0, nodeSocketContext.bufferAccessor.GetBuffer().Length, 
                 SocketFlags.None, nodeSocketContext.ReceiveCallback, null);
